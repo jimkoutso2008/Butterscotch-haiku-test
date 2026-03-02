@@ -546,7 +546,7 @@ static void DataWinReader_parseFONT(BinaryReader* reader, DataWin* dw) {
                 glyph->kerningCount = BinaryReader_readUint16(reader);
                 if (glyph->kerningCount > 0) {
                     glyph->kerning = malloc(glyph->kerningCount * sizeof(KerningPair));
-                    for (uint16_t k = 0; k < glyph->kerningCount; k++) {
+                    for (uint16_t k = 0; glyph->kerningCount > k; k++) {
                         glyph->kerning[k].character = BinaryReader_readInt16(reader);
                         glyph->kerning[k].shiftModifier = BinaryReader_readInt16(reader);
                     }
@@ -640,7 +640,7 @@ static void DataWinReader_parseOBJT(BinaryReader* reader, DataWin* dw) {
         // Physics vertices
         if (obj->physicsVertexCount > 0) {
             obj->physicsVertices = malloc(obj->physicsVertexCount * sizeof(PhysicsVertex));
-            for (int32_t j = 0; j < obj->physicsVertexCount; j++) {
+            for (int32_t j = 0; obj->physicsVertexCount > j; j++) {
                 obj->physicsVertices[j].x = BinaryReader_readFloat32(reader);
                 obj->physicsVertices[j].y = BinaryReader_readFloat32(reader);
             }
@@ -654,7 +654,7 @@ static void DataWinReader_parseOBJT(BinaryReader* reader, DataWin* dw) {
         uint32_t eventTypeCount;
         uint32_t* eventTypePtrs = DataWinReader_readPointerTable(reader, &eventTypeCount);
 
-        for (uint32_t eventType = 0; eventType < eventTypeCount && eventType < OBJT_EVENT_TYPE_COUNT; eventType++) {
+        for (uint32_t eventType = 0; eventTypeCount > eventType && OBJT_EVENT_TYPE_COUNT > eventType; eventType++) {
             BinaryReader_seek(reader, eventTypePtrs[eventType]);
 
             // Inner pointer list: events for this type
@@ -678,7 +678,7 @@ static void DataWinReader_parseOBJT(BinaryReader* reader, DataWin* dw) {
         }
 
         // Zero-fill any unused event type slots
-        for (uint32_t eventType = eventTypeCount; eventType < OBJT_EVENT_TYPE_COUNT; eventType++) {
+        for (uint32_t eventType = eventTypeCount; OBJT_EVENT_TYPE_COUNT > eventType; eventType++) {
             obj->eventLists[eventType].eventCount = 0;
             obj->eventLists[eventType].events = nullptr;
         }
@@ -729,7 +729,7 @@ static void DataWinReader_parseROOM(BinaryReader* reader, DataWin* dw) {
         {
             uint32_t bgCount;
             uint32_t* bgPtrs = DataWinReader_readPointerTable(reader, &bgCount);
-            for (uint32_t j = 0; j < bgCount && j < 8; j++) {
+            for (uint32_t j = 0; bgCount > j && 8 > j; j++) {
                 BinaryReader_seek(reader, bgPtrs[j]);
                 RoomBackground* bg = &room->backgrounds[j];
                 bg->enabled = BinaryReader_readBool32(reader);
@@ -744,7 +744,7 @@ static void DataWinReader_parseROOM(BinaryReader* reader, DataWin* dw) {
                 bg->stretch = BinaryReader_readBool32(reader);
             }
             // Zero-fill any remaining slots
-            for (uint32_t j = bgCount; j < 8; j++) {
+            for (uint32_t j = bgCount; 8 > j; j++) {
                 memset(&room->backgrounds[j], 0, sizeof(RoomBackground));
             }
             free(bgPtrs);
@@ -755,7 +755,7 @@ static void DataWinReader_parseROOM(BinaryReader* reader, DataWin* dw) {
         {
             uint32_t viewCount;
             uint32_t* viewPtrsArr = DataWinReader_readPointerTable(reader, &viewCount);
-            for (uint32_t j = 0; j < viewCount && j < 8; j++) {
+            for (uint32_t j = 0; viewCount > j && 8 > j; j++) {
                 BinaryReader_seek(reader, viewPtrsArr[j]);
                 RoomView* view = &room->views[j];
                 view->enabled = BinaryReader_readBool32(reader);
@@ -773,7 +773,7 @@ static void DataWinReader_parseROOM(BinaryReader* reader, DataWin* dw) {
                 view->speedY = BinaryReader_readInt32(reader);
                 view->objectId = BinaryReader_readInt32(reader);
             }
-            for (uint32_t j = viewCount; j < 8; j++) {
+            for (uint32_t j = viewCount; 8 > j; j++) {
                 memset(&room->views[j], 0, sizeof(RoomView));
             }
             free(viewPtrsArr);
