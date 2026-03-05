@@ -1502,21 +1502,21 @@ static RValue builtinEventInherited(VMContext* ctx, [[maybe_unused]] RValue* arg
     Runner* runner = (Runner*) ctx->runner;
     Instance* inst = (Instance*) ctx->currentInstance;
     if (inst == nullptr || 0 > ctx->currentEventObjectIndex || 0 > ctx->currentEventType) {
-        fprintf(stderr, "DEBUG event_inherited: early return (inst=%p, eventObjIdx=%d, eventType=%d)\n", (void*)inst, ctx->currentEventObjectIndex, ctx->currentEventType);
+        fprintf(stderr, "VM: event_inherited called with no event context (inst=%p, eventObjIdx=%d, eventType=%d)\n", (void*) inst, ctx->currentEventObjectIndex, ctx->currentEventType);
         return RValue_makeReal(0.0);
     }
 
     DataWin* dataWin = ctx->dataWin;
     int32_t ownerObjectIndex = ctx->currentEventObjectIndex;
     if ((uint32_t) ownerObjectIndex >= dataWin->objt.count) {
-        fprintf(stderr, "DEBUG event_inherited: ownerObjectIndex %d out of range\n", ownerObjectIndex);
+        fprintf(stderr, "VM: event_inherited ownerObjectIndex %d out of range\n", ownerObjectIndex);
         return RValue_makeReal(0.0);
     }
 
     int32_t parentObjectIndex = dataWin->objt.objects[ownerObjectIndex].parentId;
-    fprintf(stderr, "DEBUG event_inherited: owner=%s(%d) parent=%d eventType=%d inst=%d codeName=%s\n",
-            dataWin->objt.objects[ownerObjectIndex].name, ownerObjectIndex,
-            parentObjectIndex, ctx->currentEventType, inst->instanceId, ctx->currentCodeName);
+    if (ctx->traceEventInherited) {
+        fprintf(stderr, "VM: [%s] event_inherited owner=%s(%d) parent=%s(%d) event=%s (instanceId=%d)\n", dataWin->objt.objects[inst->objectIndex].name, dataWin->objt.objects[ownerObjectIndex].name, ownerObjectIndex, (0 > parentObjectIndex) ? "none" : dataWin->objt.objects[parentObjectIndex].name, parentObjectIndex, Runner_getEventName(ctx->currentEventType, ctx->currentEventSubtype), inst->instanceId);
+    }
     if (0 > parentObjectIndex) return RValue_makeReal(0.0);
 
     Runner_executeEventFromObject(runner, inst, parentObjectIndex, ctx->currentEventType, ctx->currentEventSubtype);

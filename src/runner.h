@@ -77,6 +77,7 @@ typedef struct Runner {
     struct { int32_t key; TileLayerState value; }* tileLayerMap; // stb_ds hashmap: depth -> tile layer state
 } Runner;
 
+const char* Runner_getEventName(int32_t eventType, int32_t eventSubtype);
 Runner* Runner_create(DataWin* dataWin, VMContext* vm);
 void Runner_initFirstRoom(Runner* runner);
 void Runner_step(Runner* runner);

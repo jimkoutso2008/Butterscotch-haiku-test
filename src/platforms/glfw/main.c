@@ -51,6 +51,7 @@ typedef struct {
     int seed;
     bool hasSeed;
     bool debug;
+    bool traceEventInherited;
     const char* recordInputsPath;
     const char* playbackInputsPath;
 } CommandLineArgs;
@@ -81,6 +82,7 @@ static void parseCommandLineArgs(CommandLineArgs* args, int argc, char* argv[]) 
         {"seed", required_argument, nullptr, 'Z'},
         {"debug", no_argument, nullptr, 'D'},
         {"disassemble", required_argument, nullptr, 'A'},
+        {"trace-event-inherited", no_argument, nullptr, 'E'},
         {"record-inputs", required_argument, nullptr, 'I'},
         {"playback-inputs", required_argument, nullptr, 'P'},
         {nullptr,               0,                 nullptr,  0 }
@@ -191,6 +193,9 @@ static void parseCommandLineArgs(CommandLineArgs* args, int argc, char* argv[]) 
                 break;
             case 'A':
                 shput(args->disassemble, optarg, true);
+                break;
+            case 'E':
+                args->traceEventInherited = true;
                 break;
             case 'Z': {
                 char* endPtr;
@@ -432,6 +437,7 @@ int main(int argc, char* argv[]) {
     shcopyFromTo(args.eventsToBeTraced, runner->vmContext->eventsToBeTraced);
     shcopyFromTo(args.opcodesToBeTraced, runner->vmContext->opcodesToBeTraced);
     shcopyFromTo(args.stackToBeTraced, runner->vmContext->stackToBeTraced);
+    runner->vmContext->traceEventInherited = args.traceEventInherited;
 
     // Init GLFW
     if (!glfwInit()) {

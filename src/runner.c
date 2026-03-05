@@ -119,7 +119,7 @@ static void executeCode(Runner* runner, Instance* instance, int32_t codeId) {
     }
 }
 
-static const char* getEventName(int32_t eventType, int32_t eventSubtype) {
+const char* Runner_getEventName(int32_t eventType, int32_t eventSubtype) {
     switch (eventType) {
         case EVENT_CREATE:  return "Create";
         case EVENT_DESTROY: return "Destroy";
@@ -189,7 +189,7 @@ void Runner_executeEventFromObject(Runner* runner, Instance* instance, int32_t s
     vm->currentEventObjectIndex = ownerObjectIndex;
 
     if (codeId >= 0 && shlen(vm->eventsToBeTraced) != -1) {
-        const char* eventName = getEventName(eventType, eventSubtype);
+        const char* eventName = Runner_getEventName(eventType, eventSubtype);
         const char* objectName = runner->dataWin->objt.objects[instance->objectIndex].name;
 
         bool shouldTrace = shgeti(vm->eventsToBeTraced, "*") != -1 || shgeti(vm->eventsToBeTraced, eventName) != -1 || shgeti(vm->eventsToBeTraced, objectName) != -1;
