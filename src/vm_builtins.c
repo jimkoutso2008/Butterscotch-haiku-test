@@ -2077,9 +2077,18 @@ static RValue builtinSurfaceGetHeight(VMContext* ctx, RValue* args, [[maybe_unus
     return RValue_makeReal(0.0);
 }
 
-// Sprite stubs
-STUB_RETURN_ZERO(sprite_get_width)
-STUB_RETURN_ZERO(sprite_get_height)
+// Sprite functions
+static RValue builtin_spriteGetWidth(VMContext* ctx, RValue* args, [[maybe_unused]] int32_t argCount) {
+    int32_t spriteIndex = (int32_t) RValue_toReal(args[0]);
+    if (0 > spriteIndex || (uint32_t) spriteIndex >= ctx->dataWin->sprt.count) return RValue_makeReal(0.0);
+    return RValue_makeReal((double) ctx->dataWin->sprt.sprites[spriteIndex].width);
+}
+
+static RValue builtin_spriteGetHeight(VMContext* ctx, RValue* args, [[maybe_unused]] int32_t argCount) {
+    int32_t spriteIndex = (int32_t) RValue_toReal(args[0]);
+    if (0 > spriteIndex || (uint32_t) spriteIndex >= ctx->dataWin->sprt.count) return RValue_makeReal(0.0);
+    return RValue_makeReal((double) ctx->dataWin->sprt.sprites[spriteIndex].height);
+}
 STUB_RETURN_ZERO(sprite_get_number)
 STUB_RETURN_ZERO(sprite_get_xoffset)
 STUB_RETURN_ZERO(sprite_get_yoffset)
@@ -2845,8 +2854,8 @@ void VMBuiltins_registerAll(void) {
     registerBuiltin("surface_get_height", builtinSurfaceGetHeight);
 
     // Sprite info
-    registerBuiltin("sprite_get_width", builtin_sprite_get_width);
-    registerBuiltin("sprite_get_height", builtin_sprite_get_height);
+    registerBuiltin("sprite_get_width", builtin_spriteGetWidth);
+    registerBuiltin("sprite_get_height", builtin_spriteGetHeight);
     registerBuiltin("sprite_get_number", builtin_sprite_get_number);
     registerBuiltin("sprite_get_xoffset", builtin_sprite_get_xoffset);
     registerBuiltin("sprite_get_yoffset", builtin_sprite_get_yoffset);
