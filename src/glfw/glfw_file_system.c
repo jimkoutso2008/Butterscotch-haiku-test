@@ -8,8 +8,9 @@
 
 // ===[ Helpers ]===
 
+// The caller must make sure to free the returned string!
 static char* buildFullPath(GlfwFileSystem* fs, const char* relativePath) {
-    if(strstr(relativePath, fs->basePath) != NULL) return (char*)relativePath;
+    if (strstr(relativePath, fs->basePath) != nullptr) return safeStrdup(relativePath);
     size_t baseLen = strlen(fs->basePath);
     size_t relLen = strlen(relativePath);
     char* fullPath = safeMalloc(baseLen + relLen + 1);
@@ -21,6 +22,7 @@ static char* buildFullPath(GlfwFileSystem* fs, const char* relativePath) {
 
 // ===[ Vtable Implementations ]===
 
+// The caller must make sure to free the returned string!
 static char* glfwResolvePath(FileSystem* fs, const char* relativePath) {
     return buildFullPath((GlfwFileSystem*) fs, relativePath);
 }
