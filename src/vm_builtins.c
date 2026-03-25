@@ -1511,21 +1511,41 @@ static RValue builtinDsListFindIndex([[maybe_unused]] VMContext* ctx, RValue* ar
 // ===[ ARRAY FUNCTIONS ]===
 
 static RValue builtinArrayLengthOneD(VMContext* ctx, RValue* args, int32_t argCount) {
-    Instance *inst = ctx->currentInstance;
+    // array_length_1d(array) takes a single array argument
+    if (args[0].type != RVALUE_ARRAY_REF)
+        return RValue_makeReal(0.0);
+
     int32_t varID = args[0].int32;
-    int32_t arrayIndex = args[1].int32;
-    int32_t indexLength = -1;
-    repeat(hmlen(inst->selfArrayMap), idx) {
-        int64_t key = inst->selfArrayMap[idx].key;
-        int32_t keyVarID = (int32_t)(key >> 32);
-        if (keyVarID == varID) {
-            int32_t arrayIndex = (int32_t)(key & 0xFFFFFFFF);
-            if (arrayIndex > indexLength) {
-                indexLength = arrayIndex;
+    int32_t maxIndex = -1;
+
+    // Search selfArrayMap on the current instance
+    Instance* inst = ctx->currentInstance;
+    if (inst != nullptr) {
+        repeat(hmlen(inst->selfArrayMap), idx) {
+            int64_t key = inst->selfArrayMap[idx].key;
+            int32_t keyVarID = (int32_t)(key >> 32);
+            if (keyVarID == varID) {
+                int32_t keyArrayIndex = (int32_t)(key & 0xFFFFFFFF);
+                if (keyArrayIndex > maxIndex) {
+                    maxIndex = keyArrayIndex;
+                }
             }
         }
     }
-    return RValue_makeReal((GMLReal)(indexLength+1));
+
+    // Also search globalArrayMap
+    repeat(hmlen(ctx->globalArrayMap), idx) {
+        int64_t key = ctx->globalArrayMap[idx].key;
+        int32_t keyVarID = (int32_t)(key >> 32);
+        if (keyVarID == varID) {
+            int32_t keyArrayIndex = (int32_t)(key & 0xFFFFFFFF);
+            if (keyArrayIndex > maxIndex) {
+                maxIndex = keyArrayIndex;
+            }
+        }
+    }
+
+    return RValue_makeReal((GMLReal)(maxIndex + 1));
 }
 
 // ===[ COLLISION FUNCTIONS]===
