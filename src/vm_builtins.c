@@ -3889,7 +3889,6 @@ static RValue builtin_stringWidth(VMContext* ctx, RValue* args, int32_t argCount
     char* str = RValue_toString(args[0]);
 
     PreprocessedText processed = TextUtils_preprocessGmlTextIfNeeded(runner, str);
-    free(str);
     int32_t textLen = (int32_t) strlen(processed.text);
 
     // Find the widest line
@@ -3913,6 +3912,7 @@ static RValue builtin_stringWidth(VMContext* ctx, RValue* args, int32_t argCount
     }
 
     PreprocessedText_free(processed);
+    free(str);
     return RValue_makeReal((GMLReal) (maxWidth * font->scaleX));
 }
 
@@ -3927,10 +3927,10 @@ static RValue builtin_stringHeight(VMContext* ctx, RValue* args, int32_t argCoun
     char* str = RValue_toString(args[0]);
 
     PreprocessedText processed = TextUtils_preprocessGmlTextIfNeeded(runner, str);
-    free(str);
     int32_t textLen = (int32_t) strlen(processed.text);
     int32_t lineCount = TextUtils_countLines(processed.text, textLen);
     PreprocessedText_free(processed);
+    free(str);
 
     return RValue_makeReal((GMLReal) ((float) lineCount * (float) font->emSize * font->scaleY));
 }
