@@ -26,6 +26,7 @@
 #define INSTANCE_GLOBAL    (-5)
 #define INSTANCE_LOCAL     (-7)
 #define INSTANCE_STACKTOP  (-9)
+#define INSTANCE_ARG       (-15)
 
 // ===[ Variable Types (upper 5 bits of varRef, extracted with (varRef >> 24) & 0xF8) ]===
 #define VARTYPE_ARRAY     0x00

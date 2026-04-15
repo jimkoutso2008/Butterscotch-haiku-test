@@ -317,6 +317,7 @@ static const char* instanceTypeName(int32_t instanceType) {
         case INSTANCE_OTHER: return "other";
         case INSTANCE_GLOBAL: return "global";
         case INSTANCE_LOCAL: return "local";
+        case INSTANCE_ARG: return "arg";
         default: return "instance";
     }
 }
@@ -405,6 +406,34 @@ static RValue resolveVariableRead(VMContext* ctx, int32_t instanceType, uint32_t
         if (ctx->otherInstance != nullptr) {
             targetInstance = (Instance*) ctx->otherInstance;
         }
+    } else if (instanceType == INSTANCE_ARG) {
+        // BC17: argument0..argument15 via INSTANCE_ARG instance type (builtinVarId pre-resolved at parse time)
+        int16_t bid = varDef->builtinVarId;
+        RValue result;
+        if (bid == BUILTIN_VAR_ARGUMENT_COUNT) {
+            result = RValue_makeReal((GMLReal) ctx->scriptArgCount);
+        } else if (bid == BUILTIN_VAR_ARGUMENT) {
+            // argument[N] array-style access
+            int32_t idx = access.arrayIndex;
+            if (ctx->scriptArgs != nullptr && ctx->scriptArgCount > idx && idx >= 0) {
+                result = ctx->scriptArgs[idx];
+                result.ownsString = false;
+            } else {
+                result = RValue_makeUndefined();
+            }
+        } else if (bid >= BUILTIN_VAR_ARGUMENT0 && BUILTIN_VAR_ARGUMENT15 >= bid) {
+            int32_t argIndex = bid - BUILTIN_VAR_ARGUMENT0;
+            if (ctx->scriptArgs != nullptr && ctx->scriptArgCount > argIndex) {
+                result = ctx->scriptArgs[argIndex];
+                result.ownsString = false;
+            } else {
+                result = RValue_makeUndefined();
+            }
+        } else {
+            fprintf(stderr, "VM: [%s] INSTANCE_ARG read on unknown variable '%s' (builtinVarId=%d)\n", ctx->currentCodeName, varDef->name, bid);
+            result = RValue_makeUndefined();
+        }
+        return result;
     }
 
     // Check for built-in variable (varID == -6 sentinel)
@@ -655,6 +684,30 @@ static void resolveVariableWrite(VMContext* ctx, int32_t instanceType, uint32_t 
         if (ctx->otherInstance != nullptr) {
             targetInstance = (Instance*) ctx->otherInstance;
         }
+    } else if (instanceType == INSTANCE_ARG) {
+        // BC17: write to argument0..argument15 via INSTANCE_ARG instance type (builtinVarId pre-resolved at parse time)
+        int16_t bid = varDef->builtinVarId;
+        int32_t writeIndex = -1;
+        if (bid >= BUILTIN_VAR_ARGUMENT0 && BUILTIN_VAR_ARGUMENT15 >= bid) {
+            writeIndex = bid - BUILTIN_VAR_ARGUMENT0;
+        } else if (bid == BUILTIN_VAR_ARGUMENT) {
+            writeIndex = access.arrayIndex;
+        } else {
+            fprintf(stderr, "VM: [%s] INSTANCE_ARG write on unknown variable '%s' (builtinVarId=%d)\n", ctx->currentCodeName, varDef->name, bid);
+        }
+        if (writeIndex >= 0 && GML_MAX_ARGUMENTS > writeIndex && ctx->scriptArgs != nullptr) {
+            RValue_free(&ctx->scriptArgs[writeIndex]);
+            if (val.type == RVALUE_STRING && val.string != nullptr) {
+                ctx->scriptArgs[writeIndex] = RValue_makeOwnedString(safeStrdup(val.string));
+            } else {
+                ctx->scriptArgs[writeIndex] = val;
+            }
+            if (writeIndex >= ctx->scriptArgCount) {
+                ctx->scriptArgCount = writeIndex + 1;
+            }
+        }
+        RValue_free(&val);
+        return;
     }
 
     // Check for built-in variable (varID == -6 sentinel)
@@ -1982,7 +2035,9 @@ VMContext* VM_create(DataWin* dataWin) {
     // Pre-resolve built-in variable IDs (replaces runtime strcmp chains with O(1) switch dispatch)
     repeat(dataWin->vari.variableCount, i) {
         Variable* var = &dataWin->vari.variables[i];
-        if (var->varID == -6) {
+        // varID == -6 is the BC16 built-in sentinel.
+        // In BC17, argument variables have instanceType == -6 (Builtin) with varID >= 0, so we also check instanceType.
+        if (var->varID == -6 || var->instanceType == -6) {
             var->builtinVarId = VMBuiltins_resolveBuiltinVarId(var->name);
         } else {
             var->builtinVarId = BUILTIN_VAR_UNKNOWN;
