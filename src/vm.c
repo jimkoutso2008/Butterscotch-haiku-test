@@ -2141,7 +2141,7 @@ RValue VM_executeCode(VMContext* ctx, int32_t codeIndex) {
     CodeEntry* code = &ctx->dataWin->code.entries[codeIndex];
 
     ctx->bytecodeBase = ctx->dataWin->bytecodeBuffer + (code->bytecodeAbsoluteOffset - ctx->dataWin->bytecodeBufferBase);
-    ctx->ip = 0;
+    ctx->ip = code->offset;
     ctx->codeEnd = code->length;
     ctx->currentCodeName = code->name;
 
@@ -2213,7 +2213,7 @@ RValue VM_callCodeIndex(VMContext* ctx, int32_t codeIndex, RValue* args, int32_t
 
     // Set up callee
     ctx->bytecodeBase = ctx->dataWin->bytecodeBuffer + (code->bytecodeAbsoluteOffset - ctx->dataWin->bytecodeBufferBase);
-    ctx->ip = 0;
+    ctx->ip = code->offset;
     ctx->codeEnd = code->length;
     ctx->currentCodeName = code->name;
     ctx->currentCodeLocals = VM_resolveCodeLocals(ctx, code->name);
