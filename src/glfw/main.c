@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <signal.h>
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -360,6 +361,17 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     // GLFW_REPEAT is ignored (GML doesn't use key repeat)
 }
 
+void saveInputRecording() {
+    // Save input recording if active, then free
+    if (globalInputRecording != nullptr) {
+        if (globalInputRecording->isRecording) {
+            InputRecording_save(globalInputRecording);
+        }
+        InputRecording_free(globalInputRecording);
+        globalInputRecording = nullptr;
+    }
+}
+
 // ===[ MAIN ]===
 int main(int argc, char* argv[]) {
     CommandLineArgs args;
@@ -567,6 +579,9 @@ int main(int argc, char* argv[]) {
     // Set up keyboard input
     glfwSetWindowUserPointer(window, runner);
     glfwSetKeyCallback(window, keyCallback);
+
+    signal(SIGABRT, saveInputRecording);
+    signal(SIGSEGV, saveInputRecording);
 
     // Initialize the first room and fire Game Start / Room Start events
     Runner_initFirstRoom(runner);
@@ -848,14 +863,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Save input recording if active, then free
-    if (globalInputRecording != nullptr) {
-        if (globalInputRecording->isRecording) {
-            InputRecording_save(globalInputRecording);
-        }
-        InputRecording_free(globalInputRecording);
-        globalInputRecording = nullptr;
-    }
+    saveInputRecording();
 
     // Cleanup
     runner->audioSystem->vtable->destroy(runner->audioSystem);
