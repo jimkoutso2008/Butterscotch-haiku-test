@@ -1935,6 +1935,13 @@ static RValue executeLoop(VMContext* ctx) {
 
             // Break (no-op / debug)
             case OP_BREAK:
+                if (ctx->dataWin->gen8.bytecodeVersion >= 17) {
+                    // ...unless if we are in bytecode version 17, where it actually is used
+                    // We don't really need to handle it, because it seems that it is only used by the internal GML scripts that GameMaker generates,
+                    // so we can just pop from the stack and discard
+                    RValue value = stackPop(ctx);
+                    RValue_free(&value);
+                }
                 break;
 
             default:
