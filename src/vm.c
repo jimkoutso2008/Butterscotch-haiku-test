@@ -1999,7 +1999,7 @@ VMContext* VM_create(DataWin* dataWin) {
     }
 
     // Register built-in functions
-    VMBuiltins_registerAll(dataWin->gen8.major >= 2);
+    VMBuiltins_registerAll(ctx, dataWin->gen8.major >= 2);
 
     // Pre-resolve all FUNC entries to cached builtin pointers or script code indices.
     // This eliminates per-call string hash lookups in handleCall.
@@ -2007,7 +2007,7 @@ VMContext* VM_create(DataWin* dataWin) {
     ctx->funcCallCache = safeMalloc(dataWin->func.functionCount * sizeof(FuncCallCache));
     repeat(dataWin->func.functionCount, i) {
         const char* name = dataWin->func.functions[i].name;
-        BuiltinFunc builtin = VMBuiltins_find(name);
+        BuiltinFunc builtin = VM_findBuiltin(ctx, name);
         ctx->funcCallCache[i].builtin = (void*) builtin;
         if (builtin != nullptr) {
             ctx->funcCallCache[i].scriptCodeIndex = -1;
@@ -2680,6 +2680,17 @@ void VM_disassemble(VMContext* ctx, int32_t codeIndex) {
     printf("\n");
 }
 
+void VM_registerBuiltin(VMContext* ctx, const char* name, BuiltinFunc func) {
+    requireMessage(shgeti(ctx->builtinMap, name) == -1, "Trying to register an already registered builtin function!");
+    shput(ctx->builtinMap, (char*) name, func);
+}
+
+BuiltinFunc VM_findBuiltin(VMContext* ctx, const char* name) {
+    ptrdiff_t idx = shgeti(ctx->builtinMap, (char*) name);
+    if (0 > idx) return nullptr;
+    return ctx->builtinMap[idx].value;
+}
+
 void VM_free(VMContext* ctx) {
     if (ctx == nullptr) return;
 
@@ -2744,6 +2755,10 @@ void VM_free(VMContext* ctx) {
         free(envFrame);
         envFrame = parent;
     }
+
+    // Free builtin map
+    shfree(ctx->builtinMap);
+    ctx->registeredBuiltinFunctions = false;
 
 #ifndef PLATFORM_PS2
     free(ctx);

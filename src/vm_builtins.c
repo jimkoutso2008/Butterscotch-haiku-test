@@ -25,26 +25,6 @@
 #define MAX_VIEWS 8
 #define MAX_BACKGROUNDS 8
 
-// ===[ BUILTIN FUNCTION REGISTRY ]===
-typedef struct {
-    char* key;
-    BuiltinFunc value;
-} BuiltinEntry;
-
-static bool initialized = false;
-static BuiltinEntry* builtinMap = nullptr;
-
-static void registerBuiltin(const char* name, BuiltinFunc func) {
-    requireMessage(shgeti(builtinMap, name) == -1, "Trying to register an already registered builtin function!");
-    shput(builtinMap, (char*) name, func);
-}
-
-BuiltinFunc VMBuiltins_find(const char* name) {
-    ptrdiff_t idx = shgeti(builtinMap, (char*) name);
-    if (0 > idx) return nullptr;
-    return builtinMap[idx].value;
-}
-
 // ===[ STUB LOGGING ]===
 
 static void logStubbedFunction(VMContext* ctx, const char* funcName) {
@@ -4809,405 +4789,405 @@ static RValue builtinAssetGetIndex(VMContext* ctx, RValue* args, int32_t argCoun
 
 // ===[ REGISTRATION ]===
 
-void VMBuiltins_registerAll(bool isGMS2) {
-    requireMessage(!initialized, "Attempting to register all VMBuiltins, but it was already registered!");
-    initialized = true;
+void VMBuiltins_registerAll(VMContext* ctx, bool isGMS2) {
+    requireMessage(!ctx->registeredBuiltinFunctions, "Attempting to register all VMBuiltins, but it was already registered!");
+    ctx->registeredBuiltinFunctions = true;
 
     // Core output
-    registerBuiltin("show_debug_message", builtinShowDebugMessage);
+    VM_registerBuiltin(ctx, "show_debug_message", builtinShowDebugMessage);
 
     // String functions
-    registerBuiltin("string_length", builtinStringLength);
-    registerBuiltin("string", builtinString);
-    registerBuiltin("string_upper", builtinStringUpper);
-    registerBuiltin("string_lower", builtinStringLower);
-    registerBuiltin("string_copy", builtinStringCopy);
-    registerBuiltin("string_pos", builtinStringPos);
-    registerBuiltin("string_char_at", builtinStringCharAt);
-    registerBuiltin("string_delete", builtinStringDelete);
-    registerBuiltin("string_insert", builtinStringInsert);
-    registerBuiltin("string_replace_all", builtinStringReplaceAll);
-    registerBuiltin("string_repeat", builtinStringRepeat);
-    registerBuiltin("ord", builtinOrd);
-    registerBuiltin("chr", builtinChr);
+    VM_registerBuiltin(ctx, "string_length", builtinStringLength);
+    VM_registerBuiltin(ctx, "string", builtinString);
+    VM_registerBuiltin(ctx, "string_upper", builtinStringUpper);
+    VM_registerBuiltin(ctx, "string_lower", builtinStringLower);
+    VM_registerBuiltin(ctx, "string_copy", builtinStringCopy);
+    VM_registerBuiltin(ctx, "string_pos", builtinStringPos);
+    VM_registerBuiltin(ctx, "string_char_at", builtinStringCharAt);
+    VM_registerBuiltin(ctx, "string_delete", builtinStringDelete);
+    VM_registerBuiltin(ctx, "string_insert", builtinStringInsert);
+    VM_registerBuiltin(ctx, "string_replace_all", builtinStringReplaceAll);
+    VM_registerBuiltin(ctx, "string_repeat", builtinStringRepeat);
+    VM_registerBuiltin(ctx, "ord", builtinOrd);
+    VM_registerBuiltin(ctx, "chr", builtinChr);
 
     // Type functions
-    registerBuiltin("real", builtinReal);
-    registerBuiltin("is_string", builtinIsString);
-    registerBuiltin("is_real", builtinIsReal);
-    registerBuiltin("is_undefined", builtinIsUndefined);
+    VM_registerBuiltin(ctx, "real", builtinReal);
+    VM_registerBuiltin(ctx, "is_string", builtinIsString);
+    VM_registerBuiltin(ctx, "is_real", builtinIsReal);
+    VM_registerBuiltin(ctx, "is_undefined", builtinIsUndefined);
 
     // Math functions
-    registerBuiltin("floor", builtinFloor);
-    registerBuiltin("ceil", builtinCeil);
-    registerBuiltin("round", builtinRound);
-    registerBuiltin("abs", builtinAbs);
-    registerBuiltin("sign", builtinSign);
-    registerBuiltin("max", builtinMax);
-    registerBuiltin("min", builtinMin);
-    registerBuiltin("power", builtinPower);
-    registerBuiltin("sqrt", builtinSqrt);
-    registerBuiltin("sqr", builtinSqr);
-    registerBuiltin("sin", builtinSin);
-    registerBuiltin("cos", builtinCos);
-    registerBuiltin("darctan2", builtinDarctan2);
-    registerBuiltin("degtorad", builtinDegtorad);
-    registerBuiltin("radtodeg", builtinRadtodeg);
-    registerBuiltin("clamp", builtinClamp);
-    registerBuiltin("lerp", builtinLerp);
-    registerBuiltin("point_distance", builtinPointDistance);
-    registerBuiltin("point_direction", builtinPointDirection);
-    registerBuiltin("angle_difference", builtinAngleDifference);
-    registerBuiltin("distance_to_point", builtinDistanceToPoint);
-    registerBuiltin("distance_to_object", builtinDistanceToObject);
-    registerBuiltin("move_towards_point", builtinMoveTowardsPoint);
-    registerBuiltin("action_move_point", builtinMoveTowardsPoint);
-    registerBuiltin("move_snap", builtinMoveSnap);
-    registerBuiltin("lengthdir_x", builtinLengthdir_x);
-    registerBuiltin("lengthdir_y", builtinLengthdir_y);
+    VM_registerBuiltin(ctx, "floor", builtinFloor);
+    VM_registerBuiltin(ctx, "ceil", builtinCeil);
+    VM_registerBuiltin(ctx, "round", builtinRound);
+    VM_registerBuiltin(ctx, "abs", builtinAbs);
+    VM_registerBuiltin(ctx, "sign", builtinSign);
+    VM_registerBuiltin(ctx, "max", builtinMax);
+    VM_registerBuiltin(ctx, "min", builtinMin);
+    VM_registerBuiltin(ctx, "power", builtinPower);
+    VM_registerBuiltin(ctx, "sqrt", builtinSqrt);
+    VM_registerBuiltin(ctx, "sqr", builtinSqr);
+    VM_registerBuiltin(ctx, "sin", builtinSin);
+    VM_registerBuiltin(ctx, "cos", builtinCos);
+    VM_registerBuiltin(ctx, "darctan2", builtinDarctan2);
+    VM_registerBuiltin(ctx, "degtorad", builtinDegtorad);
+    VM_registerBuiltin(ctx, "radtodeg", builtinRadtodeg);
+    VM_registerBuiltin(ctx, "clamp", builtinClamp);
+    VM_registerBuiltin(ctx, "lerp", builtinLerp);
+    VM_registerBuiltin(ctx, "point_distance", builtinPointDistance);
+    VM_registerBuiltin(ctx, "point_direction", builtinPointDirection);
+    VM_registerBuiltin(ctx, "angle_difference", builtinAngleDifference);
+    VM_registerBuiltin(ctx, "distance_to_point", builtinDistanceToPoint);
+    VM_registerBuiltin(ctx, "distance_to_object", builtinDistanceToObject);
+    VM_registerBuiltin(ctx, "move_towards_point", builtinMoveTowardsPoint);
+    VM_registerBuiltin(ctx, "action_move_point", builtinMoveTowardsPoint);
+    VM_registerBuiltin(ctx, "move_snap", builtinMoveSnap);
+    VM_registerBuiltin(ctx, "lengthdir_x", builtinLengthdir_x);
+    VM_registerBuiltin(ctx, "lengthdir_y", builtinLengthdir_y);
 
     // Random
-    registerBuiltin("random", builtinRandom);
-    registerBuiltin("random_range", builtinRandomRange);
-    registerBuiltin("irandom", builtinIrandom);
-    registerBuiltin("irandom_range", builtinIrandomRange);
-    registerBuiltin("choose", builtinChoose);
-    registerBuiltin("randomize", builtinRandomize);
+    VM_registerBuiltin(ctx, "random", builtinRandom);
+    VM_registerBuiltin(ctx, "random_range", builtinRandomRange);
+    VM_registerBuiltin(ctx, "irandom", builtinIrandom);
+    VM_registerBuiltin(ctx, "irandom_range", builtinIrandomRange);
+    VM_registerBuiltin(ctx, "choose", builtinChoose);
+    VM_registerBuiltin(ctx, "randomize", builtinRandomize);
 
     // Room
-    registerBuiltin("room_get_name", builtinRoomGetName);
-    registerBuiltin("room_goto_next", builtinRoomGotoNext);
-    registerBuiltin("room_goto_previous", builtinRoomGotoPrevious);
-    registerBuiltin("room_goto", builtinRoomGoto);
-    registerBuiltin("room_restart", builtinRoomRestart);
-    registerBuiltin("room_next", builtinRoomNext);
-    registerBuiltin("room_previous", builtinRoomPrevious);
-    registerBuiltin("room_set_persistent", builtinRoomSetPersistent);
+    VM_registerBuiltin(ctx, "room_get_name", builtinRoomGetName);
+    VM_registerBuiltin(ctx, "room_goto_next", builtinRoomGotoNext);
+    VM_registerBuiltin(ctx, "room_goto_previous", builtinRoomGotoPrevious);
+    VM_registerBuiltin(ctx, "room_goto", builtinRoomGoto);
+    VM_registerBuiltin(ctx, "room_restart", builtinRoomRestart);
+    VM_registerBuiltin(ctx, "room_next", builtinRoomNext);
+    VM_registerBuiltin(ctx, "room_previous", builtinRoomPrevious);
+    VM_registerBuiltin(ctx, "room_set_persistent", builtinRoomSetPersistent);
 
     // GMS2 camera compatibility
-    registerBuiltin("view_get_camera", builtinViewGetCamera);
-    registerBuiltin("camera_get_view_x", builtinCameraGetViewX);
-    registerBuiltin("camera_get_view_y", builtinCameraGetViewY);
-    registerBuiltin("camera_get_view_width", builtinCameraGetViewWidth);
-    registerBuiltin("camera_get_view_height", builtinCameraGetViewHeight);
-    registerBuiltin("camera_set_view_pos", builtinCameraSetViewPos);
+    VM_registerBuiltin(ctx, "view_get_camera", builtinViewGetCamera);
+    VM_registerBuiltin(ctx, "camera_get_view_x", builtinCameraGetViewX);
+    VM_registerBuiltin(ctx, "camera_get_view_y", builtinCameraGetViewY);
+    VM_registerBuiltin(ctx, "camera_get_view_width", builtinCameraGetViewWidth);
+    VM_registerBuiltin(ctx, "camera_get_view_height", builtinCameraGetViewHeight);
+    VM_registerBuiltin(ctx, "camera_set_view_pos", builtinCameraSetViewPos);
 
     // Variables
-    registerBuiltin("variable_global_exists", builtinVariableGlobalExists);
-    registerBuiltin("variable_global_get", builtinVariableGlobalGet);
-    registerBuiltin("variable_global_set", builtinVariableGlobalSet);
+    VM_registerBuiltin(ctx, "variable_global_exists", builtinVariableGlobalExists);
+    VM_registerBuiltin(ctx, "variable_global_get", builtinVariableGlobalGet);
+    VM_registerBuiltin(ctx, "variable_global_set", builtinVariableGlobalSet);
 
     // Script
-    registerBuiltin("script_execute", builtinScriptExecute);
+    VM_registerBuiltin(ctx, "script_execute", builtinScriptExecute);
 
     // OS
-    registerBuiltin("os_get_language", builtinOsGetLanguage);
-    registerBuiltin("os_get_region", builtinOsGetRegion);
+    VM_registerBuiltin(ctx, "os_get_language", builtinOsGetLanguage);
+    VM_registerBuiltin(ctx, "os_get_region", builtinOsGetRegion);
 
     // ds_map
-    registerBuiltin("ds_map_create", builtinDsMapCreate);
-    registerBuiltin("ds_map_add", builtinDsMapAdd);
-    registerBuiltin("ds_map_set", builtinDsMapSet);
-    registerBuiltin("ds_map_replace", builtinDsMapReplace);
-    registerBuiltin("ds_map_find_value", builtinDsMapFindValue);
-    registerBuiltin("ds_map_exists", builtinDsMapExists);
-    registerBuiltin("ds_map_find_first", builtinDsMapFindFirst);
-    registerBuiltin("ds_map_find_next", builtinDsMapFindNext);
-    registerBuiltin("ds_map_size", builtinDsMapSize);
-    registerBuiltin("ds_map_destroy", builtinDsMapDestroy);
+    VM_registerBuiltin(ctx, "ds_map_create", builtinDsMapCreate);
+    VM_registerBuiltin(ctx, "ds_map_add", builtinDsMapAdd);
+    VM_registerBuiltin(ctx, "ds_map_set", builtinDsMapSet);
+    VM_registerBuiltin(ctx, "ds_map_replace", builtinDsMapReplace);
+    VM_registerBuiltin(ctx, "ds_map_find_value", builtinDsMapFindValue);
+    VM_registerBuiltin(ctx, "ds_map_exists", builtinDsMapExists);
+    VM_registerBuiltin(ctx, "ds_map_find_first", builtinDsMapFindFirst);
+    VM_registerBuiltin(ctx, "ds_map_find_next", builtinDsMapFindNext);
+    VM_registerBuiltin(ctx, "ds_map_size", builtinDsMapSize);
+    VM_registerBuiltin(ctx, "ds_map_destroy", builtinDsMapDestroy);
 
     // ds_list stubs
-    registerBuiltin("ds_list_create", builtinDsListCreate);
-    registerBuiltin("ds_list_add", builtinDsListAdd);
-    registerBuiltin("ds_list_size", builtinDsListSize);
-    registerBuiltin("ds_list_find_index", builtinDsListFindIndex);
+    VM_registerBuiltin(ctx, "ds_list_create", builtinDsListCreate);
+    VM_registerBuiltin(ctx, "ds_list_add", builtinDsListAdd);
+    VM_registerBuiltin(ctx, "ds_list_size", builtinDsListSize);
+    VM_registerBuiltin(ctx, "ds_list_find_index", builtinDsListFindIndex);
 
     // Array
-    registerBuiltin("array_length_1d", builtinArrayLength1d);
+    VM_registerBuiltin(ctx, "array_length_1d", builtinArrayLength1d);
 
     // Steam stubs
-    registerBuiltin("steam_initialised", builtin_steam_initialised);
-    registerBuiltin("steam_stats_ready", builtin_steam_stats_ready);
-    registerBuiltin("steam_file_exists", builtin_steam_file_exists);
-    registerBuiltin("steam_file_write", builtin_steam_file_write);
-    registerBuiltin("steam_file_read", builtin_steam_file_read);
-    registerBuiltin("steam_get_persona_name", builtin_steam_get_persona_name);
+    VM_registerBuiltin(ctx, "steam_initialised", builtin_steam_initialised);
+    VM_registerBuiltin(ctx, "steam_stats_ready", builtin_steam_stats_ready);
+    VM_registerBuiltin(ctx, "steam_file_exists", builtin_steam_file_exists);
+    VM_registerBuiltin(ctx, "steam_file_write", builtin_steam_file_write);
+    VM_registerBuiltin(ctx, "steam_file_read", builtin_steam_file_read);
+    VM_registerBuiltin(ctx, "steam_get_persona_name", builtin_steam_get_persona_name);
 
     // Audio
-    registerBuiltin("audio_channel_num", builtin_audioChannelNum);
-    registerBuiltin("audio_play_sound", builtin_audioPlaySound);
-    registerBuiltin("audio_stop_sound", builtin_audioStopSound);
-    registerBuiltin("audio_stop_all", builtin_audioStopAll);
-    registerBuiltin("audio_is_playing", builtin_audioIsPlaying);
-    registerBuiltin("audio_is_paused", builtin_audioIsPaused);
-    registerBuiltin("audio_sound_gain", builtin_audioSoundGain);
-    registerBuiltin("audio_sound_pitch", builtin_audioSoundPitch);
-    registerBuiltin("audio_sound_get_gain", builtin_audioSoundGetGain);
-    registerBuiltin("audio_sound_get_pitch", builtin_audioSoundGetPitch);
-    registerBuiltin("audio_master_gain", builtin_audioMasterGain);
-    registerBuiltin("audio_group_load", builtin_audioGroupLoad);
-    registerBuiltin("audio_group_is_loaded", builtin_audioGroupIsLoaded);
-    registerBuiltin("audio_play_music", builtin_audioPlayMusic);
-    registerBuiltin("audio_stop_music", builtin_audioStopMusic);
-    registerBuiltin("audio_music_gain", builtin_audioMusicGain);
-    registerBuiltin("audio_music_is_playing", builtin_audioMusicIsPlaying);
-    registerBuiltin("audio_pause_sound", builtin_audioPauseSound);
-    registerBuiltin("audio_resume_sound", builtin_audioResumeSound);
-    registerBuiltin("audio_pause_all", builtin_audioPauseAll);
-    registerBuiltin("audio_resume_all", builtin_audioResumeAll);
-    registerBuiltin("audio_sound_get_track_position", builtin_audioSoundGetTrackPosition);
-    registerBuiltin("audio_sound_set_track_position", builtin_audioSoundSetTrackPosition);
-    registerBuiltin("audio_create_stream", builtin_audioCreateStream);
-    registerBuiltin("audio_destroy_stream", builtin_audioDestroyStream);
+    VM_registerBuiltin(ctx, "audio_channel_num", builtin_audioChannelNum);
+    VM_registerBuiltin(ctx, "audio_play_sound", builtin_audioPlaySound);
+    VM_registerBuiltin(ctx, "audio_stop_sound", builtin_audioStopSound);
+    VM_registerBuiltin(ctx, "audio_stop_all", builtin_audioStopAll);
+    VM_registerBuiltin(ctx, "audio_is_playing", builtin_audioIsPlaying);
+    VM_registerBuiltin(ctx, "audio_is_paused", builtin_audioIsPaused);
+    VM_registerBuiltin(ctx, "audio_sound_gain", builtin_audioSoundGain);
+    VM_registerBuiltin(ctx, "audio_sound_pitch", builtin_audioSoundPitch);
+    VM_registerBuiltin(ctx, "audio_sound_get_gain", builtin_audioSoundGetGain);
+    VM_registerBuiltin(ctx, "audio_sound_get_pitch", builtin_audioSoundGetPitch);
+    VM_registerBuiltin(ctx, "audio_master_gain", builtin_audioMasterGain);
+    VM_registerBuiltin(ctx, "audio_group_load", builtin_audioGroupLoad);
+    VM_registerBuiltin(ctx, "audio_group_is_loaded", builtin_audioGroupIsLoaded);
+    VM_registerBuiltin(ctx, "audio_play_music", builtin_audioPlayMusic);
+    VM_registerBuiltin(ctx, "audio_stop_music", builtin_audioStopMusic);
+    VM_registerBuiltin(ctx, "audio_music_gain", builtin_audioMusicGain);
+    VM_registerBuiltin(ctx, "audio_music_is_playing", builtin_audioMusicIsPlaying);
+    VM_registerBuiltin(ctx, "audio_pause_sound", builtin_audioPauseSound);
+    VM_registerBuiltin(ctx, "audio_resume_sound", builtin_audioResumeSound);
+    VM_registerBuiltin(ctx, "audio_pause_all", builtin_audioPauseAll);
+    VM_registerBuiltin(ctx, "audio_resume_all", builtin_audioResumeAll);
+    VM_registerBuiltin(ctx, "audio_sound_get_track_position", builtin_audioSoundGetTrackPosition);
+    VM_registerBuiltin(ctx, "audio_sound_set_track_position", builtin_audioSoundSetTrackPosition);
+    VM_registerBuiltin(ctx, "audio_create_stream", builtin_audioCreateStream);
+    VM_registerBuiltin(ctx, "audio_destroy_stream", builtin_audioDestroyStream);
 
     // Application surface
-    registerBuiltin("application_surface_enable", builtin_application_surface_enable);
-    registerBuiltin("application_surface_draw_enable", builtin_application_surface_draw_enable);
+    VM_registerBuiltin(ctx, "application_surface_enable", builtin_application_surface_enable);
+    VM_registerBuiltin(ctx, "application_surface_draw_enable", builtin_application_surface_draw_enable);
 
     // Gamepad
-    registerBuiltin("gamepad_get_device_count", builtin_gamepad_get_device_count);
-    registerBuiltin("gamepad_is_connected", builtin_gamepad_is_connected);
-    registerBuiltin("gamepad_button_check", builtin_gamepad_button_check);
-    registerBuiltin("gamepad_button_check_pressed", builtin_gamepad_button_check_pressed);
-    registerBuiltin("gamepad_button_check_released", builtin_gamepad_button_check_released);
-    registerBuiltin("gamepad_axis_value", builtin_gamepad_axis_value);
-    registerBuiltin("gamepad_get_description", builtin_gamepad_get_description);
-    registerBuiltin("gamepad_button_value", builtin_gamepad_button_value);
+    VM_registerBuiltin(ctx, "gamepad_get_device_count", builtin_gamepad_get_device_count);
+    VM_registerBuiltin(ctx, "gamepad_is_connected", builtin_gamepad_is_connected);
+    VM_registerBuiltin(ctx, "gamepad_button_check", builtin_gamepad_button_check);
+    VM_registerBuiltin(ctx, "gamepad_button_check_pressed", builtin_gamepad_button_check_pressed);
+    VM_registerBuiltin(ctx, "gamepad_button_check_released", builtin_gamepad_button_check_released);
+    VM_registerBuiltin(ctx, "gamepad_axis_value", builtin_gamepad_axis_value);
+    VM_registerBuiltin(ctx, "gamepad_get_description", builtin_gamepad_get_description);
+    VM_registerBuiltin(ctx, "gamepad_button_value", builtin_gamepad_button_value);
 
     // INI
-    registerBuiltin("ini_open", builtinIniOpen);
-    registerBuiltin("ini_close", builtinIniClose);
-    registerBuiltin("ini_write_real", builtinIniWriteReal);
-    registerBuiltin("ini_write_string", builtinIniWriteString);
-    registerBuiltin("ini_read_string", builtinIniReadString);
-    registerBuiltin("ini_read_real", builtinIniReadReal);
-    registerBuiltin("ini_section_exists", builtinIniSectionExists);
+    VM_registerBuiltin(ctx, "ini_open", builtinIniOpen);
+    VM_registerBuiltin(ctx, "ini_close", builtinIniClose);
+    VM_registerBuiltin(ctx, "ini_write_real", builtinIniWriteReal);
+    VM_registerBuiltin(ctx, "ini_write_string", builtinIniWriteString);
+    VM_registerBuiltin(ctx, "ini_read_string", builtinIniReadString);
+    VM_registerBuiltin(ctx, "ini_read_real", builtinIniReadReal);
+    VM_registerBuiltin(ctx, "ini_section_exists", builtinIniSectionExists);
 
     // File
-    registerBuiltin("file_exists", builtinFileExists);
-    registerBuiltin("file_text_open_write", builtinFileTextOpenWrite);
-    registerBuiltin("file_text_open_read", builtinFileTextOpenRead);
-    registerBuiltin("file_text_close", builtinFileTextClose);
-    registerBuiltin("file_text_write_string", builtinFileTextWriteString);
-    registerBuiltin("file_text_writeln", builtinFileTextWriteln);
-    registerBuiltin("file_text_write_real", builtinFileTextWriteReal);
-    registerBuiltin("file_text_eof", builtinFileTextEof);
-    registerBuiltin("file_delete", builtinFileDelete);
-    registerBuiltin("file_text_read_string", builtinFileTextReadString);
-    registerBuiltin("file_text_read_real", builtinFileTextReadReal);
-    registerBuiltin("file_text_readln", builtinFileTextReadln);
+    VM_registerBuiltin(ctx, "file_exists", builtinFileExists);
+    VM_registerBuiltin(ctx, "file_text_open_write", builtinFileTextOpenWrite);
+    VM_registerBuiltin(ctx, "file_text_open_read", builtinFileTextOpenRead);
+    VM_registerBuiltin(ctx, "file_text_close", builtinFileTextClose);
+    VM_registerBuiltin(ctx, "file_text_write_string", builtinFileTextWriteString);
+    VM_registerBuiltin(ctx, "file_text_writeln", builtinFileTextWriteln);
+    VM_registerBuiltin(ctx, "file_text_write_real", builtinFileTextWriteReal);
+    VM_registerBuiltin(ctx, "file_text_eof", builtinFileTextEof);
+    VM_registerBuiltin(ctx, "file_delete", builtinFileDelete);
+    VM_registerBuiltin(ctx, "file_text_read_string", builtinFileTextReadString);
+    VM_registerBuiltin(ctx, "file_text_read_real", builtinFileTextReadReal);
+    VM_registerBuiltin(ctx, "file_text_readln", builtinFileTextReadln);
 
     // Keyboard
-    registerBuiltin("keyboard_check", builtinKeyboardCheck);
-    registerBuiltin("keyboard_check_pressed", builtinKeyboardCheckPressed);
-    registerBuiltin("keyboard_check_released", builtinKeyboardCheckReleased);
-    registerBuiltin("keyboard_check_direct", builtinKeyboardCheckDirect);
-    registerBuiltin("keyboard_key_press", builtinKeyboardKeyPress);
-    registerBuiltin("keyboard_key_release", builtinKeyboardKeyRelease);
-    registerBuiltin("keyboard_clear", builtinKeyboardClear);
+    VM_registerBuiltin(ctx, "keyboard_check", builtinKeyboardCheck);
+    VM_registerBuiltin(ctx, "keyboard_check_pressed", builtinKeyboardCheckPressed);
+    VM_registerBuiltin(ctx, "keyboard_check_released", builtinKeyboardCheckReleased);
+    VM_registerBuiltin(ctx, "keyboard_check_direct", builtinKeyboardCheckDirect);
+    VM_registerBuiltin(ctx, "keyboard_key_press", builtinKeyboardKeyPress);
+    VM_registerBuiltin(ctx, "keyboard_key_release", builtinKeyboardKeyRelease);
+    VM_registerBuiltin(ctx, "keyboard_clear", builtinKeyboardClear);
 
     // Joystick
-    registerBuiltin("joystick_exists", builtin_joystick_exists);
-    registerBuiltin("joystick_xpos", builtin_joystick_xpos);
-    registerBuiltin("joystick_ypos", builtin_joystick_ypos);
-    registerBuiltin("joystick_direction", builtin_joystick_direction);
-    registerBuiltin("joystick_pov", builtin_joystick_pov);
-    registerBuiltin("joystick_check_button", builtin_joystick_check_button);
+    VM_registerBuiltin(ctx, "joystick_exists", builtin_joystick_exists);
+    VM_registerBuiltin(ctx, "joystick_xpos", builtin_joystick_xpos);
+    VM_registerBuiltin(ctx, "joystick_ypos", builtin_joystick_ypos);
+    VM_registerBuiltin(ctx, "joystick_direction", builtin_joystick_direction);
+    VM_registerBuiltin(ctx, "joystick_pov", builtin_joystick_pov);
+    VM_registerBuiltin(ctx, "joystick_check_button", builtin_joystick_check_button);
 
     // Window
-    registerBuiltin("window_get_fullscreen", builtin_window_get_fullscreen);
-    registerBuiltin("window_set_fullscreen", builtin_window_set_fullscreen);
-    registerBuiltin("window_set_caption", builtin_window_set_caption);
-    registerBuiltin("window_set_size", builtin_window_set_size);
-    registerBuiltin("window_center", builtin_window_center);
-    registerBuiltin("window_get_width", builtinWindowGetWidth);
-    registerBuiltin("window_get_height", builtinWindowGetHeight);
+    VM_registerBuiltin(ctx, "window_get_fullscreen", builtin_window_get_fullscreen);
+    VM_registerBuiltin(ctx, "window_set_fullscreen", builtin_window_set_fullscreen);
+    VM_registerBuiltin(ctx, "window_set_caption", builtin_window_set_caption);
+    VM_registerBuiltin(ctx, "window_set_size", builtin_window_set_size);
+    VM_registerBuiltin(ctx, "window_center", builtin_window_center);
+    VM_registerBuiltin(ctx, "window_get_width", builtinWindowGetWidth);
+    VM_registerBuiltin(ctx, "window_get_height", builtinWindowGetHeight);
 
     // Game
-    registerBuiltin("game_restart", builtinGameRestart);
-    registerBuiltin("game_end", builtinGameEnd);
-    registerBuiltin("game_save", builtin_game_save);
-    registerBuiltin("game_load", builtin_game_load);
+    VM_registerBuiltin(ctx, "game_restart", builtinGameRestart);
+    VM_registerBuiltin(ctx, "game_end", builtinGameEnd);
+    VM_registerBuiltin(ctx, "game_save", builtin_game_save);
+    VM_registerBuiltin(ctx, "game_load", builtin_game_load);
 
     // Instance
-    registerBuiltin("instance_exists", builtinInstanceExists);
-    registerBuiltin("instance_number", builtinInstanceNumber);
-    registerBuiltin("instance_find", builtinInstanceFind);
-    registerBuiltin("instance_destroy", builtinInstanceDestroy);
+    VM_registerBuiltin(ctx, "instance_exists", builtinInstanceExists);
+    VM_registerBuiltin(ctx, "instance_number", builtinInstanceNumber);
+    VM_registerBuiltin(ctx, "instance_find", builtinInstanceFind);
+    VM_registerBuiltin(ctx, "instance_destroy", builtinInstanceDestroy);
     if(!isGMS2) {
-        registerBuiltin("instance_create", builtinInstanceCreate);
+        VM_registerBuiltin(ctx, "instance_create", builtinInstanceCreate);
     }
     else {
-        registerBuiltin("instance_create_depth", builtinInstanceCreateDepth);
+        VM_registerBuiltin(ctx, "instance_create_depth", builtinInstanceCreateDepth);
     }
-    registerBuiltin("instance_change", builtinInstanceChange);
-    registerBuiltin("instance_deactivate_all", builtinInstanceDeactivateAll);
-    registerBuiltin("instance_activate_all", builtinInstanceActivateAll);
-    registerBuiltin("instance_activate_object", builtinInstanceActivateObject);
-    registerBuiltin("instance_deactivate_object", builtinInstanceDeactivateObject);
-    registerBuiltin("action_kill_object", builtinActionKillObject);
-    registerBuiltin("action_create_object", builtinActionCreateObject);
-    registerBuiltin("action_set_relative", builtinActionSetRelative);
-    registerBuiltin("action_move", builtinActionMove);
-    registerBuiltin("action_move_to", builtinActionMoveTo);
-    registerBuiltin("action_snap", builtinActionSnap);
-    registerBuiltin("action_set_friction", builtinActionSetFriction);
-    registerBuiltin("action_set_gravity", builtinActionSetGravity);
-    registerBuiltin("action_set_hspeed", builtinActionSetHspeed);
-    registerBuiltin("action_set_vspeed", builtinActionSetVspeed);
-    registerBuiltin("event_inherited", builtinEventInherited);
-    registerBuiltin("event_user", builtinEventUser);
-    registerBuiltin("event_perform", builtinEventPerform);
+    VM_registerBuiltin(ctx, "instance_change", builtinInstanceChange);
+    VM_registerBuiltin(ctx, "instance_deactivate_all", builtinInstanceDeactivateAll);
+    VM_registerBuiltin(ctx, "instance_activate_all", builtinInstanceActivateAll);
+    VM_registerBuiltin(ctx, "instance_activate_object", builtinInstanceActivateObject);
+    VM_registerBuiltin(ctx, "instance_deactivate_object", builtinInstanceDeactivateObject);
+    VM_registerBuiltin(ctx, "action_kill_object", builtinActionKillObject);
+    VM_registerBuiltin(ctx, "action_create_object", builtinActionCreateObject);
+    VM_registerBuiltin(ctx, "action_set_relative", builtinActionSetRelative);
+    VM_registerBuiltin(ctx, "action_move", builtinActionMove);
+    VM_registerBuiltin(ctx, "action_move_to", builtinActionMoveTo);
+    VM_registerBuiltin(ctx, "action_snap", builtinActionSnap);
+    VM_registerBuiltin(ctx, "action_set_friction", builtinActionSetFriction);
+    VM_registerBuiltin(ctx, "action_set_gravity", builtinActionSetGravity);
+    VM_registerBuiltin(ctx, "action_set_hspeed", builtinActionSetHspeed);
+    VM_registerBuiltin(ctx, "action_set_vspeed", builtinActionSetVspeed);
+    VM_registerBuiltin(ctx, "event_inherited", builtinEventInherited);
+    VM_registerBuiltin(ctx, "event_user", builtinEventUser);
+    VM_registerBuiltin(ctx, "event_perform", builtinEventPerform);
 
     // Buffer
-    registerBuiltin("buffer_create", builtin_buffer_create);
-    registerBuiltin("buffer_delete", builtin_buffer_delete);
-    registerBuiltin("buffer_write", builtin_buffer_write);
-    registerBuiltin("buffer_read", builtin_buffer_read);
-    registerBuiltin("buffer_seek", builtin_buffer_seek);
-    registerBuiltin("buffer_tell", builtin_buffer_tell);
-    registerBuiltin("buffer_get_size", builtin_buffer_get_size);
-    registerBuiltin("buffer_base64_encode", builtin_buffer_base64_encode);
+    VM_registerBuiltin(ctx, "buffer_create", builtin_buffer_create);
+    VM_registerBuiltin(ctx, "buffer_delete", builtin_buffer_delete);
+    VM_registerBuiltin(ctx, "buffer_write", builtin_buffer_write);
+    VM_registerBuiltin(ctx, "buffer_read", builtin_buffer_read);
+    VM_registerBuiltin(ctx, "buffer_seek", builtin_buffer_seek);
+    VM_registerBuiltin(ctx, "buffer_tell", builtin_buffer_tell);
+    VM_registerBuiltin(ctx, "buffer_get_size", builtin_buffer_get_size);
+    VM_registerBuiltin(ctx, "buffer_base64_encode", builtin_buffer_base64_encode);
 
     // PSN
-    registerBuiltin("psn_init", builtin_psn_init);
-    registerBuiltin("psn_default_user", builtin_psn_default_user);
-    registerBuiltin("psn_get_leaderboard_score", builtin_psn_get_leaderboard_score);
+    VM_registerBuiltin(ctx, "psn_init", builtin_psn_init);
+    VM_registerBuiltin(ctx, "psn_default_user", builtin_psn_default_user);
+    VM_registerBuiltin(ctx, "psn_get_leaderboard_score", builtin_psn_get_leaderboard_score);
 
     // Draw
-    registerBuiltin("draw_sprite", builtin_drawSprite);
-    registerBuiltin("draw_sprite_ext", builtin_drawSpriteExt);
-    registerBuiltin("draw_sprite_tiled", builtin_drawSpriteTiled);
-    registerBuiltin("draw_sprite_tiled_ext", builtin_drawSpriteTiledExt);
-    registerBuiltin("draw_sprite_stretched", builtin_drawSpriteStretched);
-    registerBuiltin("draw_sprite_stretched_ext", builtin_drawSpriteStretchedExt);
-    registerBuiltin("draw_sprite_part", builtin_drawSpritePart);
-    registerBuiltin("draw_sprite_part_ext", builtin_drawSpritePartExt);
-    registerBuiltin("draw_rectangle", builtin_drawRectangle);
-    registerBuiltin("draw_rectangle_color", builtin_drawRectangleColor);
-    registerBuiltin("draw_healthbar", builtin_drawHealthbar);
-    registerBuiltin("draw_set_color", builtin_drawSetColor);
-    registerBuiltin("draw_set_alpha", builtin_drawSetAlpha);
-    registerBuiltin("draw_set_font", builtin_drawSetFont);
-    registerBuiltin("draw_set_halign", builtin_drawSetHalign);
-    registerBuiltin("draw_set_valign", builtin_drawSetValign);
-    registerBuiltin("draw_text", builtin_drawText);
-    registerBuiltin("draw_text_transformed", builtin_drawTextTransformed);
-    registerBuiltin("draw_text_ext", builtin_draw_text_ext);
-    registerBuiltin("draw_text_ext_transformed", builtin_draw_text_ext_transformed);
-    registerBuiltin("draw_text_color", builtin_drawTextColor);
-    registerBuiltin("draw_text_color_transformed", builtin_drawTextColorTransformed);
-    registerBuiltin("draw_text_color_ext", builtin_draw_text_color_ext);
-    registerBuiltin("draw_text_color_ext_transformed", builtin_draw_text_color_ext_transformed);
-    registerBuiltin("draw_text_colour", builtin_drawTextColor);
-    registerBuiltin("draw_text_colour_transformed", builtin_drawTextColorTransformed);
-    registerBuiltin("draw_text_colour_ext", builtin_draw_text_color_ext);
-    registerBuiltin("draw_text_colour_ext_transformed", builtin_draw_text_color_ext_transformed);
-    registerBuiltin("draw_surface", builtin_draw_surface);
-    registerBuiltin("draw_surface_ext", builtin_draw_surface_ext);
+    VM_registerBuiltin(ctx, "draw_sprite", builtin_drawSprite);
+    VM_registerBuiltin(ctx, "draw_sprite_ext", builtin_drawSpriteExt);
+    VM_registerBuiltin(ctx, "draw_sprite_tiled", builtin_drawSpriteTiled);
+    VM_registerBuiltin(ctx, "draw_sprite_tiled_ext", builtin_drawSpriteTiledExt);
+    VM_registerBuiltin(ctx, "draw_sprite_stretched", builtin_drawSpriteStretched);
+    VM_registerBuiltin(ctx, "draw_sprite_stretched_ext", builtin_drawSpriteStretchedExt);
+    VM_registerBuiltin(ctx, "draw_sprite_part", builtin_drawSpritePart);
+    VM_registerBuiltin(ctx, "draw_sprite_part_ext", builtin_drawSpritePartExt);
+    VM_registerBuiltin(ctx, "draw_rectangle", builtin_drawRectangle);
+    VM_registerBuiltin(ctx, "draw_rectangle_color", builtin_drawRectangleColor);
+    VM_registerBuiltin(ctx, "draw_healthbar", builtin_drawHealthbar);
+    VM_registerBuiltin(ctx, "draw_set_color", builtin_drawSetColor);
+    VM_registerBuiltin(ctx, "draw_set_alpha", builtin_drawSetAlpha);
+    VM_registerBuiltin(ctx, "draw_set_font", builtin_drawSetFont);
+    VM_registerBuiltin(ctx, "draw_set_halign", builtin_drawSetHalign);
+    VM_registerBuiltin(ctx, "draw_set_valign", builtin_drawSetValign);
+    VM_registerBuiltin(ctx, "draw_text", builtin_drawText);
+    VM_registerBuiltin(ctx, "draw_text_transformed", builtin_drawTextTransformed);
+    VM_registerBuiltin(ctx, "draw_text_ext", builtin_draw_text_ext);
+    VM_registerBuiltin(ctx, "draw_text_ext_transformed", builtin_draw_text_ext_transformed);
+    VM_registerBuiltin(ctx, "draw_text_color", builtin_drawTextColor);
+    VM_registerBuiltin(ctx, "draw_text_color_transformed", builtin_drawTextColorTransformed);
+    VM_registerBuiltin(ctx, "draw_text_color_ext", builtin_draw_text_color_ext);
+    VM_registerBuiltin(ctx, "draw_text_color_ext_transformed", builtin_draw_text_color_ext_transformed);
+    VM_registerBuiltin(ctx, "draw_text_colour", builtin_drawTextColor);
+    VM_registerBuiltin(ctx, "draw_text_colour_transformed", builtin_drawTextColorTransformed);
+    VM_registerBuiltin(ctx, "draw_text_colour_ext", builtin_draw_text_color_ext);
+    VM_registerBuiltin(ctx, "draw_text_colour_ext_transformed", builtin_draw_text_color_ext_transformed);
+    VM_registerBuiltin(ctx, "draw_surface", builtin_draw_surface);
+    VM_registerBuiltin(ctx, "draw_surface_ext", builtin_draw_surface_ext);
     if(!isGMS2) {
-        registerBuiltin("draw_background", builtin_drawBackground);
-        registerBuiltin("draw_background_ext", builtin_drawBackgroundExt);
-        registerBuiltin("draw_background_stretched", builtin_drawBackgroundStretched);
-        registerBuiltin("draw_background_part_ext", builtin_drawBackgroundPartExt);
-        registerBuiltin("background_get_width", builtinBackgroundGetWidth);
-        registerBuiltin("background_get_height", builtinBackgroundGetHeight);
+        VM_registerBuiltin(ctx, "draw_background", builtin_drawBackground);
+        VM_registerBuiltin(ctx, "draw_background_ext", builtin_drawBackgroundExt);
+        VM_registerBuiltin(ctx, "draw_background_stretched", builtin_drawBackgroundStretched);
+        VM_registerBuiltin(ctx, "draw_background_part_ext", builtin_drawBackgroundPartExt);
+        VM_registerBuiltin(ctx, "background_get_width", builtinBackgroundGetWidth);
+        VM_registerBuiltin(ctx, "background_get_height", builtinBackgroundGetHeight);
     }
-    registerBuiltin("draw_self", builtin_draw_self);
-    registerBuiltin("draw_line", builtin_draw_line);
-    registerBuiltin("draw_line_width", builtin_draw_line_width);
-    registerBuiltin("draw_line_width_colour", builtin_draw_line_width_colour);
-    registerBuiltin("draw_line_width_color", builtin_draw_line_width_colour);
-    registerBuiltin("draw_triangle", builtin_draw_triangle);
-    registerBuiltin("draw_set_colour", builtin_draw_set_colour);
-    registerBuiltin("draw_get_colour", builtin_draw_get_colour);
-    registerBuiltin("draw_get_color", builtin_draw_get_color);
-    registerBuiltin("draw_get_alpha", builtin_draw_get_alpha);
+    VM_registerBuiltin(ctx, "draw_self", builtin_draw_self);
+    VM_registerBuiltin(ctx, "draw_line", builtin_draw_line);
+    VM_registerBuiltin(ctx, "draw_line_width", builtin_draw_line_width);
+    VM_registerBuiltin(ctx, "draw_line_width_colour", builtin_draw_line_width_colour);
+    VM_registerBuiltin(ctx, "draw_line_width_color", builtin_draw_line_width_colour);
+    VM_registerBuiltin(ctx, "draw_triangle", builtin_draw_triangle);
+    VM_registerBuiltin(ctx, "draw_set_colour", builtin_draw_set_colour);
+    VM_registerBuiltin(ctx, "draw_get_colour", builtin_draw_get_colour);
+    VM_registerBuiltin(ctx, "draw_get_color", builtin_draw_get_color);
+    VM_registerBuiltin(ctx, "draw_get_alpha", builtin_draw_get_alpha);
 
     // Color
-    registerBuiltin("merge_color", builtinMergeColor);
-    registerBuiltin("merge_colour", builtinMergeColor);
+    VM_registerBuiltin(ctx, "merge_color", builtinMergeColor);
+    VM_registerBuiltin(ctx, "merge_colour", builtinMergeColor);
 
     // Surface
-    registerBuiltin("surface_create", builtin_surface_create);
-    registerBuiltin("surface_free", builtin_surface_free);
-    registerBuiltin("surface_set_target", builtin_surface_set_target);
-    registerBuiltin("surface_reset_target", builtin_surface_reset_target);
-    registerBuiltin("surface_exists", builtin_surface_exists);
-    registerBuiltin("surface_get_width", builtinSurfaceGetWidth);
-    registerBuiltin("surface_get_height", builtinSurfaceGetHeight);
+    VM_registerBuiltin(ctx, "surface_create", builtin_surface_create);
+    VM_registerBuiltin(ctx, "surface_free", builtin_surface_free);
+    VM_registerBuiltin(ctx, "surface_set_target", builtin_surface_set_target);
+    VM_registerBuiltin(ctx, "surface_reset_target", builtin_surface_reset_target);
+    VM_registerBuiltin(ctx, "surface_exists", builtin_surface_exists);
+    VM_registerBuiltin(ctx, "surface_get_width", builtinSurfaceGetWidth);
+    VM_registerBuiltin(ctx, "surface_get_height", builtinSurfaceGetHeight);
 
     // Sprite info
-    registerBuiltin("sprite_get_width", builtin_spriteGetWidth);
-    registerBuiltin("sprite_get_height", builtin_spriteGetHeight);
-    registerBuiltin("sprite_get_number", builtin_spriteGetNumber);
-    registerBuiltin("sprite_get_xoffset", builtin_spriteGetXOffset);
-    registerBuiltin("sprite_get_yoffset", builtin_spriteGetYOffset);
-    registerBuiltin("sprite_create_from_surface", builtin_spriteCreateFromSurface);
-    registerBuiltin("sprite_delete", builtin_spriteDelete);
+    VM_registerBuiltin(ctx, "sprite_get_width", builtin_spriteGetWidth);
+    VM_registerBuiltin(ctx, "sprite_get_height", builtin_spriteGetHeight);
+    VM_registerBuiltin(ctx, "sprite_get_number", builtin_spriteGetNumber);
+    VM_registerBuiltin(ctx, "sprite_get_xoffset", builtin_spriteGetXOffset);
+    VM_registerBuiltin(ctx, "sprite_get_yoffset", builtin_spriteGetYOffset);
+    VM_registerBuiltin(ctx, "sprite_create_from_surface", builtin_spriteCreateFromSurface);
+    VM_registerBuiltin(ctx, "sprite_delete", builtin_spriteDelete);
 
     // Text measurement
-    registerBuiltin("string_width", builtin_stringWidth);
-    registerBuiltin("string_height", builtin_stringHeight);
-    registerBuiltin("string_width_ext", builtin_string_width_ext);
-    registerBuiltin("string_height_ext", builtin_string_height_ext);
+    VM_registerBuiltin(ctx, "string_width", builtin_stringWidth);
+    VM_registerBuiltin(ctx, "string_height", builtin_stringHeight);
+    VM_registerBuiltin(ctx, "string_width_ext", builtin_string_width_ext);
+    VM_registerBuiltin(ctx, "string_height_ext", builtin_string_height_ext);
 
     // Color
-    registerBuiltin("make_color_rgb", builtinMakeColor);
-    registerBuiltin("make_colour_rgb", builtinMakeColour);
-    registerBuiltin("make_color_hsv", builtinMakeColorHsv);
-    registerBuiltin("make_colour_hsv", builtinMakeColourHsv);
+    VM_registerBuiltin(ctx, "make_color_rgb", builtinMakeColor);
+    VM_registerBuiltin(ctx, "make_colour_rgb", builtinMakeColour);
+    VM_registerBuiltin(ctx, "make_color_hsv", builtinMakeColorHsv);
+    VM_registerBuiltin(ctx, "make_colour_hsv", builtinMakeColourHsv);
 
     // Display
-    registerBuiltin("display_get_width", builtin_display_get_width);
-    registerBuiltin("display_get_height", builtin_display_get_height);
+    VM_registerBuiltin(ctx, "display_get_width", builtin_display_get_width);
+    VM_registerBuiltin(ctx, "display_get_height", builtin_display_get_height);
 
     // Collision
-    registerBuiltin("place_meeting", builtinPlaceMeeting);
-    registerBuiltin("collision_rectangle", builtinCollisionRectangle);
-    registerBuiltin("collision_line", builtinCollisionLine);
-    registerBuiltin("collision_point", builtinCollisionPoint);
-    registerBuiltin("instance_position", builtinInstancePosition);
-    registerBuiltin("place_free", builtinPlaceFree);
-    registerBuiltin("place_empty", builtinPlaceEmpty);
+    VM_registerBuiltin(ctx, "place_meeting", builtinPlaceMeeting);
+    VM_registerBuiltin(ctx, "collision_rectangle", builtinCollisionRectangle);
+    VM_registerBuiltin(ctx, "collision_line", builtinCollisionLine);
+    VM_registerBuiltin(ctx, "collision_point", builtinCollisionPoint);
+    VM_registerBuiltin(ctx, "instance_position", builtinInstancePosition);
+    VM_registerBuiltin(ctx, "place_free", builtinPlaceFree);
+    VM_registerBuiltin(ctx, "place_empty", builtinPlaceEmpty);
 
     // Motion planning
-    registerBuiltin("mp_linear_step", builtinMpLinearStep);
-    registerBuiltin("mp_linear_step_object", builtinMpLinearStepObject);
-    registerBuiltin("mp_potential_step", builtinMpPotentialStep);
-    registerBuiltin("mp_potential_step_object", builtinMpPotentialStepObject);
-    registerBuiltin("mp_potential_settings", builtinMpPotentialSettings);
+    VM_registerBuiltin(ctx, "mp_linear_step", builtinMpLinearStep);
+    VM_registerBuiltin(ctx, "mp_linear_step_object", builtinMpLinearStepObject);
+    VM_registerBuiltin(ctx, "mp_potential_step", builtinMpPotentialStep);
+    VM_registerBuiltin(ctx, "mp_potential_step_object", builtinMpPotentialStepObject);
+    VM_registerBuiltin(ctx, "mp_potential_settings", builtinMpPotentialSettings);
 
     // Tile layers
-    registerBuiltin("tile_layer_hide", builtinTileLayerHide);
-    registerBuiltin("tile_layer_show", builtinTileLayerShow);
-    registerBuiltin("tile_layer_shift", builtinTileLayerShift);
+    VM_registerBuiltin(ctx, "tile_layer_hide", builtinTileLayerHide);
+    VM_registerBuiltin(ctx, "tile_layer_show", builtinTileLayerShow);
+    VM_registerBuiltin(ctx, "tile_layer_shift", builtinTileLayerShift);
 
     // Layer
-    registerBuiltin("layer_force_draw_depth", builtinLayerForceDrawDepth);
-    registerBuiltin("layer_is_draw_depth_forced", builtinLayerIsDrawDepthForced);
-    registerBuiltin("layer_get_forced_depth", builtinLayerGetForcedDepth);
+    VM_registerBuiltin(ctx, "layer_force_draw_depth", builtinLayerForceDrawDepth);
+    VM_registerBuiltin(ctx, "layer_is_draw_depth_forced", builtinLayerIsDrawDepthForced);
+    VM_registerBuiltin(ctx, "layer_get_forced_depth", builtinLayerGetForcedDepth);
 
     // GMS2 internal
-    registerBuiltin("@@NewGMLArray@@", builtinNewGMLArray);
+    VM_registerBuiltin(ctx, "@@NewGMLArray@@", builtinNewGMLArray);
 
     // Path
-    registerBuiltin("path_start", builtinPathStart);
-    registerBuiltin("path_end", builtinPathEnd);
+    VM_registerBuiltin(ctx, "path_start", builtinPathStart);
+    VM_registerBuiltin(ctx, "path_end", builtinPathEnd);
 
     // Misc
-    registerBuiltin("get_timer", builtin_get_timer);
-    registerBuiltin("action_if_variable", builtinActionIfVariable);
-    registerBuiltin("action_set_alarm", builtinActionSetAlarm);
-    registerBuiltin("alarm_set", builtinAlarmSet);
-    registerBuiltin("alarm_get", builtinAlarmGet);
-    registerBuiltin("action_sound",builtin_action_sound);
-    registerBuiltin("string_hash_to_newline", builtinStringHashToNewline);
-    registerBuiltin("json_decode", builtinJsonDecode);
-    registerBuiltin("font_add_sprite", builtinFontAddSprite);
-    registerBuiltin("font_add_sprite_ext", builtinFontAddSpriteExt);
-    registerBuiltin("object_get_sprite", builtinObjectGetSprite);
-    registerBuiltin("asset_get_index", builtinAssetGetIndex);
+    VM_registerBuiltin(ctx, "get_timer", builtin_get_timer);
+    VM_registerBuiltin(ctx, "action_if_variable", builtinActionIfVariable);
+    VM_registerBuiltin(ctx, "action_set_alarm", builtinActionSetAlarm);
+    VM_registerBuiltin(ctx, "alarm_set", builtinAlarmSet);
+    VM_registerBuiltin(ctx, "alarm_get", builtinAlarmGet);
+    VM_registerBuiltin(ctx, "action_sound",builtin_action_sound);
+    VM_registerBuiltin(ctx, "string_hash_to_newline", builtinStringHashToNewline);
+    VM_registerBuiltin(ctx, "json_decode", builtinJsonDecode);
+    VM_registerBuiltin(ctx, "font_add_sprite", builtinFontAddSprite);
+    VM_registerBuiltin(ctx, "font_add_sprite_ext", builtinFontAddSpriteExt);
+    VM_registerBuiltin(ctx, "object_get_sprite", builtinObjectGetSprite);
+    VM_registerBuiltin(ctx, "asset_get_index", builtinAssetGetIndex);
 }
 
 void VMBuiltins_free(void) {
@@ -5233,8 +5213,4 @@ void VMBuiltins_free(void) {
         arrfree(list->items);
     }
     arrfree(dsListPool);
-
-    // Free builtin map
-    shfree(builtinMap);
-    initialized = false;
 }

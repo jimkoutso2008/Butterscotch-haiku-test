@@ -3,8 +3,6 @@
 #include "common.h"
 #include "vm.h"
 
-typedef RValue (*BuiltinFunc)(VMContext* ctx, RValue* args, int32_t argCount);
-
 // ===[ Built-in Variable ID Enum ]===
 typedef enum {
     BUILTIN_VAR_UNKNOWN = -1,
@@ -151,9 +149,8 @@ typedef enum {
     BUILTIN_VAR_FPS,
 } BuiltinVarId;
 
-void VMBuiltins_registerAll(bool isGMS2);
+void VMBuiltins_registerAll(VMContext* ctx, bool isGMS2);
 void VMBuiltins_free(void);
-BuiltinFunc VMBuiltins_find(const char* name);
 int16_t VMBuiltins_resolveBuiltinVarId(const char* name);
 RValue VMBuiltins_getVariable(VMContext* ctx, int16_t builtinVarId, const char* name, int32_t arrayIndex);
 void VMBuiltins_setVariable(VMContext* ctx, int16_t builtinVarId, const char* name, RValue val, int32_t arrayIndex);

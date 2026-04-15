@@ -132,8 +132,17 @@ typedef struct {
     RValue slots[VM_STACK_SIZE];
 } VMStack;
 
-// Forward declaration for Runner
+// Forward declarations
 struct Runner;
+typedef struct VMContext VMContext;
+
+// ===[ Builtin Functions Manager ]===
+typedef RValue (*BuiltinFunc)(VMContext* ctx, RValue* args, int32_t argCount);
+
+typedef struct {
+    char* key;
+    BuiltinFunc value;
+} BuiltinEntry;
 
 // ===[ VMContext - Holds all VM state ]===
 // Fields are ordered by access frequency so that the hottest data sits in the first bytes of the struct
@@ -177,6 +186,8 @@ typedef struct VMContext {
 
     // Cold: init-only or rare lookups
     // Tracks which global varIDs have array data (for array aliasing)
+    BuiltinEntry* builtinMap;
+    bool registeredBuiltinFunctions;
     struct { int32_t key; int32_t value; }* globalArrayVarTracker;
     // funcName -> codeIndex hash map (stb_ds)
     struct { char* key; int32_t value; }* funcMap;
@@ -213,6 +224,8 @@ void VM_free(VMContext* ctx);
 bool VM_isObjectOrDescendant(DataWin* dataWin, int32_t objectIndex, int32_t targetObjectIndex);
 void VM_buildCrossReferences(VMContext* ctx);
 void VM_disassemble(VMContext* ctx, int32_t codeIndex);
+void VM_registerBuiltin(VMContext* ctx, const char* name, BuiltinFunc func);
+BuiltinFunc VM_findBuiltin(VMContext* ctx, const char* name);
 
 static const char* VM_getCallerName(VMContext* ctx) {
     return ctx->currentCodeName != nullptr ? ctx->currentCodeName : "<unknown>";
