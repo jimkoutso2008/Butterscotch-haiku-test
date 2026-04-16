@@ -16,6 +16,10 @@
 #define MAX_CODE_LOCALS 64
 #define MAX_ARRAY_ALIAS_HOPS 16
 
+// Counter for generating synthetic varIDs for sub-arrays (2D+ array elements that are themselves arrays).
+// Starts at a high value to avoid collision with real varIDs from the VARI chunk.
+static int32_t nextSyntheticVarID = 1000000;
+
 // ===[ Stack Operations ]===
 
 #ifndef DISABLE_VM_TRACING
@@ -982,8 +986,29 @@ static void handlePush(VMContext* ctx, uint32_t instr, const uint8_t* extraData)
             uint8_t varType = (varRef >> 24) & 0xF8;
             if (varType == VARTYPE_ARRAYPUSHAF || varType == VARTYPE_ARRAYPOPAF) {
                 // V17: Push a GML array reference for subsequent pushaf/popaf/pushac
+                // The stack has [scope, firstDimIndex] pushed before this instruction
+                // We pop both, resolve the variable's array at firstDimIndex, and push a sub-array reference (for 2D+ arrays like global.arr[j][i]).
                 Variable* varDef = resolveVarDef(ctx, varRef);
-                stackPush(ctx, RValue_makeGMLArray(varDef->varID, instanceType));
+                RValue firstIndexVal = stackPop(ctx);
+                RValue scopeVal = stackPop(ctx);
+                int32_t firstIndex = RValue_toInt32(firstIndexVal);
+                int32_t scope = RValue_toInt32(scopeVal);
+                RValue_free(&firstIndexVal);
+                RValue_free(&scopeVal);
+
+                // Look up the top-level array to find or create the sub-array at firstIndex
+                RValue topRef = RValue_makeGMLArray(varDef->varID, scope);
+                RValue subArray = gmlArrayGet(ctx, &topRef, firstIndex);
+                if (subArray.type == RVALUE_GML_ARRAY) {
+                    // Sub-array already exists, push it
+                    stackPush(ctx, subArray);
+                } else {
+                    // Create a new sub-array with a synthetic varID
+                    int32_t syntheticID = nextSyntheticVarID++;
+                    RValue newSubArray = RValue_makeGMLArray(syntheticID, scope);
+                    gmlArraySet(ctx, &topRef, firstIndex, newSubArray);
+                    stackPush(ctx, newSubArray);
+                }
             } else {
                 RValue val = resolveVariableRead(ctx, instanceType, varRef);
                 stackPush(ctx, val);
@@ -2182,6 +2207,8 @@ static RValue executeLoop(VMContext* ctx) {
 // ===[ Public API ]===
 
 VMContext* VM_create(DataWin* dataWin) {
+    // Validate that VARI variable count won't collide with synthetic varIDs used for 2D+ array sub-arrays
+    requireMessage((uint32_t) nextSyntheticVarID > dataWin->vari.variableCount, "VARI variable count exceeds synthetic varID base - increase nextSyntheticVarID");
 #ifdef PLATFORM_PS2
     // Place VMContext in scratchpad RAM
     requireMessage(16384 >= sizeof(VMContext), "VMContext exceeds PS2 scratchpad size (16 KB)");
